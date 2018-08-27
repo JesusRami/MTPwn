@@ -219,36 +219,19 @@ int main(int argc, char *argv[])
 			f2 = files;
 			while (f2 != NULL && reals > 0) {
 				f2 = f2->next;
-				--reals;
+				for (i = 0; i < strlen(f2->filename); ++i)
+					if (f2->filename[i] == '/')
+						f2->filename[i] = '_';
+				if (LIBMTP_Get_File_To_File(device,
+							    f2->item_id,
+							    f2->filename,
+							    NULL,
+							    NULL))
+					fprintf(stderr, "\nError getting file.\n");
+				else
+					printf("\nDownloaded file: %s\n",
+					       f2->filename);
 			}
-			for (i = 0; i < strlen(f2->filename); ++i)
-				if (f2->filename[i] == '/')
-					f2->filename[i] = '_';
-			if (LIBMTP_Get_File_To_File(device,
-						    f2->item_id,
-						    f2->filename,
-						    NULL,
-						    NULL))
-				fprintf(stderr, "\nError getting file.\n");
-			else
-				printf("\nDownloaded file: %s\n",
-				       f2->filename);
-			newfile = LIBMTP_new_file_t();
-			newfile->filename = strdup("PWND");
-			newfile->filesize = 0;
-			newfile->filetype = LIBMTP_FILETYPE_UNKNOWN;
-			newfile->storage_id = f2->storage_id;
-			newfile->parent_id = 0;
-			if (LIBMTP_Send_File_From_File(device,
-						       argv[0],
-						       newfile,
-						       NULL,
-						       NULL))
-				fprintf(stderr, "\nError sending file.\n");
-			else
-				printf("\nUploaded file PWND on storage %x.\n",
-				       f2->storage_id);
-			LIBMTP_destroy_file_t(newfile);
 		}
 		destroy(&fname, &files, &folders, &flist, fcount);
 	}
